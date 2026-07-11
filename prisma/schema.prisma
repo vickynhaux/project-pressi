@@ -23,27 +23,85 @@ enum Comida {
   colacion
 }
 
+enum TipoDia {
+  con_entreno
+  sin_entreno
+}
+
+enum CargaTrabajo {
+  ligera
+  normal
+  pesada
+}
+
+enum EnergiaNivel {
+  baja
+  media
+  alta
+}
+
 model Producto {
-  id          Int           @id @default(autoincrement())
+  id          Int                @id @default(autoincrement())
   nombre      String
-  porcionBase String        @map("porcion_base")
-  hidratosG   Float         @map("hidratos_g")
-  azucaresG   Float         @map("azucares_g")
-  proteinaG   Float         @map("proteina_g")
-  grasaG      Float         @map("grasa_g")
+  porcionBase String             @map("porcion_base")
+  hidratosG   Float              @map("hidratos_g")
+  azucaresG   Float              @map("azucares_g")
+  proteinaG   Float              @map("proteina_g")
+  grasaG      Float              @map("grasa_g")
   calorias    Float
   grupo       GrupoAlimento
-  createdAt   DateTime      @default(now()) @map("created_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  registros   RegistroAlimento[]
 
   @@map("productos")
 }
 
 model PlanNutricion {
   id            Int           @id @default(autoincrement())
+  tipoDia       TipoDia       @map("tipo_dia")
   comida        Comida
   grupoAlimento GrupoAlimento @map("grupo_alimento")
   porcionesMeta Int           @map("porciones_meta")
 
-  @@unique([comida, grupoAlimento])
+  @@unique([tipoDia, comida, grupoAlimento])
   @@map("plan_nutricion")
+}
+
+model RegistroDiario {
+  id           Int                @id @default(autoincrement())
+  fecha        DateTime           @unique @db.Date
+  tipoDia      TipoDia?           @map("tipo_dia")
+  cargaTrabajo CargaTrabajo?      @map("carga_trabajo")
+  energiaNivel EnergiaNivel?      @map("energia_nivel")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  items        RegistroAlimento[]
+
+  @@map("registros_diarios")
+}
+
+model RegistroAlimento {
+  id               Int            @id @default(autoincrement())
+  registroDiario   RegistroDiario @relation(fields: [registroDiarioId], references: [id], onDelete: Cascade)
+  registroDiarioId Int            @map("registro_diario_id")
+  comida           Comida
+  producto         Producto       @relation(fields: [productoId], references: [id])
+  productoId       Int            @map("producto_id")
+  porciones        Float
+  hora             DateTime?
+  createdAt        DateTime       @default(now()) @map("created_at")
+
+  @@map("registro_alimentos")
+}
+
+model InBodyRegistro {
+  id               Int      @id @default(autoincrement())
+  fecha            DateTime @db.Date
+  pesoTotal        Float    @map("peso_total")
+  masaMuscularPct  Float    @map("masa_muscular_pct")
+  grasaCorporalPct Float    @map("grasa_corporal_pct")
+  metabolismoBasal Int      @map("metabolismo_basal")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@map("inbody_registros")
 }
