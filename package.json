@@ -4,12 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
     "lucide-react": "^1.24.0",
     "next": "16.2.10",
+    "pg": "^8.22.0",
+    "prisma": "^7.8.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -20,5 +29,10 @@
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "prisma@7.8.0": true,
+    "sharp@0.34.5": true,
+    "@prisma/engines@7.8.0": true
   }
 }

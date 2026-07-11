@@ -1,7 +1,23 @@
 import StatCard from "@/components/StatCard";
 import { Activity, Flame, Zap, TrendingUp, Dumbbell, Apple } from "lucide-react";
 
-export default function Dashboard() {
+export const dynamic = "force-dynamic";
+
+async function getPorcionesMetaTotal(): Promise<number> {
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const result = await prisma.planNutricion.aggregate({
+      _sum: { porcionesMeta: true },
+    });
+    return result._sum.porcionesMeta ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+export default async function Dashboard() {
+  const totalMeta = await getPorcionesMetaTotal();
+
   return (
     <div className="p-8 max-w-5xl mx-auto">
       {/* Header */}
@@ -22,8 +38,12 @@ export default function Dashboard() {
         <StatCard
           label="Porciones de hoy"
           value="0"
-          unit="/ 12"
-          subtext="Sin registros aún — empieza tu primer registro diario"
+          unit={totalMeta > 0 ? `/ ${totalMeta}` : "/ —"}
+          subtext={
+            totalMeta > 0
+              ? "Sin registros aún — empieza tu primer registro diario"
+              : "Define tu plan en Configuración"
+          }
           accent
           icon={<Apple size={20} />}
         />
@@ -60,7 +80,7 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Recomendación del día — placeholder */}
+      {/* Análisis IA — placeholder */}
       <div
         className="rounded-xl p-6 mb-4"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
@@ -77,7 +97,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Carga de trabajo + sentimiento — placeholder */}
+      {/* Carga de trabajo + sentimiento */}
       <div className="grid grid-cols-2 gap-4">
         <div
           className="rounded-xl p-5"

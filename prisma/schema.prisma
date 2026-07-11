@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum GrupoAlimento {
+  proteina
+  carbohidrato
+  grasa
+  fruta
+  verdura
+  lacteo
+}
+
+enum Comida {
+  desayuno
+  comida
+  cena
+  colacion
+}
+
+model Producto {
+  id          Int           @id @default(autoincrement())
+  nombre      String
+  porcionBase String        @map("porcion_base")
+  hidratosG   Float         @map("hidratos_g")
+  azucaresG   Float         @map("azucares_g")
+  proteinaG   Float         @map("proteina_g")
+  grasaG      Float         @map("grasa_g")
+  calorias    Float
+  grupo       GrupoAlimento
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@map("productos")
+}
+
+model PlanNutricion {
+  id            Int           @id @default(autoincrement())
+  comida        Comida
+  grupoAlimento GrupoAlimento @map("grupo_alimento")
+  porcionesMeta Int           @map("porciones_meta")
+
+  @@unique([comida, grupoAlimento])
+  @@map("plan_nutricion")
+}
